@@ -316,8 +316,6 @@ nav{background:var(--cream);border-bottom:1px solid rgba(26,24,20,0.08);padding:
 </div>
 
 <script>
-const ANTHROPIC_API_KEY = 'YOUR_API_KEY_HERE';
-
 const CATS = {
   shelter:{label:'Shelter',color:'#2d6a8f'},
   sleep:{label:'Sleep',color:'#7F77DD'},
@@ -457,9 +455,9 @@ function handleImage(ev){
 }
 
 async function callClaude(body){
-  const r=await fetch('https://api.anthropic.com/v1/messages',{
+  const r=await fetch('/api/claude',{
     method:'POST',
-    headers:{'Content-Type':'application/json','x-api-key':ANTHROPIC_API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    headers:{'Content-Type':'application/json'},
     body:JSON.stringify(body)
   });
   return r.json();
