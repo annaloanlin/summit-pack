@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Summit Pack — Gear Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --stone:#1a1814;--stone2:#2d2a25;--stone3:#6b6660;
+  --mist:#f5f2ed;--mist2:#ede9e2;--cream:#faf8f4;
+  --pine:#2d4a35;--pine2:#3d6349;--pine3:#e8f2eb;
+  --amber:#c4872a;--amber2:#e8a03a;--amber3:#fdf3e3;
+  --snow:#ffffff;--text-on-dark:#f0ede6;
+  --red:#c0392b;--red2:#fdf0ef;
+  --serif:'Fraunces',Georgia,serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+body{font-family:var(--sans);background:var(--mist2);color:var(--stone);min-height:100vh}
+
+nav{background:var(--cream);border-bottom:1px solid rgba(26,24,20,0.08);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.nav-logo{font-family:var(--serif);font-size:19px;font-weight:700;color:var(--stone);text-decoration:none;letter-spacing:-0.02em}
+.nav-logo span{color:var(--pine2)}
+.nav-right{display:flex;align-items:center;gap:16px}
+.unit-pill{display:flex;border:1px solid var(--mist2);border-radius:100px;overflow:hidden;background:var(--mist)}
+.unit-pill button{border:none;background:transparent;padding:5px 14px;font-size:12px;font-weight:500;color:var(--stone3);cursor:pointer;font-family:var(--sans);transition:all .15s}
+.unit-pill button.active{background:var(--stone);color:var(--text-on-dark)}
+.back-link{font-size:13px;color:var(--stone3);text-decoration:none;display:flex;align-items:center;gap:5px}
+.back-link:hover{color:var(--stone)}
+
+.layout{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 60px);align-items:start}
+
+.sidebar{background:var(--stone);padding:32px;position:sticky;top:60px;min-height:calc(100vh - 60px);display:flex;flex-direction:column;gap:24px}
+.weight-display{text-align:center;padding:32px 0;border-bottom:1px solid rgba(240,237,230,0.1)}
+.weight-number{font-family:var(--serif);font-size:52px;font-weight:300;letter-spacing:-0.04em;color:var(--text-on-dark);line-height:1}
+.weight-unit{font-size:14px;color:rgba(240,237,230,0.4);margin-top:6px;letter-spacing:.06em;text-transform:uppercase}
+.weight-bar-wrap{margin-top:16px;background:rgba(240,237,230,0.1);border-radius:100px;height:4px;overflow:hidden}
+.weight-bar-fill{height:100%;background:var(--amber2);border-radius:100px;transition:width .5s,background .3s}
+.weight-bar-fill.warn{background:#e8a03a}
+.weight-bar-fill.danger{background:#e05c4a}
+
+.cat-totals{display:flex;flex-direction:column;gap:10px}
+.cat-total-row{display:flex;align-items:center;gap:10px}
+.cat-total-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.cat-total-name{font-size:12px;color:rgba(240,237,230,0.5);flex:1}
+.cat-total-val{font-size:12px;font-weight:500;color:rgba(240,237,230,0.8)}
+
+.sidebar-bottom{margin-top:auto;padding-top:24px;border-top:1px solid rgba(240,237,230,0.1)}
+.sidebar-nav-item{display:flex;align-items:center;gap:10px;padding:10px 0;cursor:pointer;color:rgba(240,237,230,0.5);font-size:14px;transition:color .15s;border:none;background:none;width:100%;text-align:left;font-family:var(--sans)}
+.sidebar-nav-item svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.sidebar-nav-item.active,.sidebar-nav-item:hover{color:var(--text-on-dark)}
+.sidebar-nav-item.active svg{stroke:var(--amber2)}
+
+.main{padding:32px;display:flex;flex-direction:column;gap:24px}
+.panel{display:none}
+.panel.active{display:flex;flex-direction:column;gap:20px}
+
+.section-head{display:flex;align-items:center;justify-content:space-between}
+.section-title{font-family:var(--serif);font-size:26px;font-weight:300;letter-spacing:-0.02em;color:var(--stone)}
+.section-sub{font-size:13px;color:var(--stone3);margin-top:2px}
+
+.card{background:var(--cream);border-radius:16px;border:1px solid rgba(26,24,20,0.06);overflow:hidden}
+.card-head{padding:20px 24px;border-bottom:1px solid var(--mist2);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:14px;font-weight:500;color:var(--stone)}
+.card-body{padding:20px 24px}
+
+.cat-filter{display:flex;gap:6px;flex-wrap:wrap}
+.cat-chip{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;border:1px solid rgba(26,24,20,0.1);background:var(--cream);font-size:12px;font-weight:500;color:var(--stone3);cursor:pointer;transition:all .15s;font-family:var(--sans)}
+.cat-chip svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.cat-chip.active,.cat-chip:hover{background:var(--stone);color:var(--text-on-dark);border-color:var(--stone)}
+
+.add-form{background:var(--cream);border-radius:16px;border:1px solid rgba(26,24,20,0.06)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:20px 24px;border-bottom:1px solid var(--mist2)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--stone3)}
+.field input,.field select{padding:10px 14px;border:1px solid rgba(26,24,20,0.12);border-radius:10px;font-size:14px;font-family:var(--sans);color:var(--stone);background:var(--snow);outline:none;transition:border-color .15s}
+.field input:focus,.field select:focus{border-color:var(--pine)}
+.field.full{grid-column:1/-1}
+.ai-hint{font-size:11px;color:var(--stone3);margin-top:4px;min-height:14px;font-style:italic;display:flex;align-items:center;gap:5px}
+.ai-hint.found{color:var(--pine2)}
+
+.upload-row{padding:16px 24px;border-bottom:1px solid var(--mist2);display:flex;align-items:center;gap:14px}
+.upload-zone{flex:1;border:1.5px dashed rgba(26,24,20,0.15);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:all .15s;background:var(--mist)}
+.upload-zone:hover{border-color:var(--pine);background:var(--pine3)}
+.upload-zone p{font-size:12px;color:var(--stone3);margin-top:4px}
+.upload-zone.has-img{border-style:solid;border-color:rgba(26,24,20,0.15);background:var(--cream)}
+.upload-zone svg{width:20px;height:20px;stroke:var(--stone3);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;margin:0 auto;display:block}
+.form-actions{padding:16px 24px;display:flex;gap:10px}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;font-family:var(--sans);border:none;text-decoration:none}
+.btn-stone{background:var(--stone);color:var(--text-on-dark)}
+.btn-stone:hover{background:var(--stone2)}
+.btn-outline{background:transparent;border:1px solid rgba(26,24,20,0.15);color:var(--stone)}
+.btn-outline:hover{background:var(--mist)}
+.btn-pine{background:var(--pine);color:var(--text-on-dark)}
+.btn-pine:hover{background:var(--pine2);transform:translateY(-1px)}
+.btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.btn-sm{padding:7px 14px;font-size:12px;border-radius:8px}
+
+.gear-list{display:flex;flex-direction:column;gap:2px}
+.gear-item{display:flex;align-items:center;gap:14px;padding:14px 20px;background:var(--cream);border-radius:0;transition:background .12s}
+.gear-item:first-child{border-radius:14px 14px 0 0}
+.gear-item:last-child{border-radius:0 0 14px 14px}
+.gear-item:only-child{border-radius:14px}
+.gear-item:hover{background:var(--mist)}
+.gear-thumb{width:48px;height:48px;border-radius:10px;border:1px solid rgba(26,24,20,0.08);background:var(--mist2);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.gear-thumb img{width:100%;height:100%;object-fit:cover}
+.gear-thumb svg{width:22px;height:22px;stroke:var(--stone3);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.gear-info{flex:1;min-width:0}
+.gear-name{font-size:14px;font-weight:500;color:var(--stone);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gear-meta{font-size:12px;color:var(--stone3);margin-top:2px;display:flex;align-items:center;gap:8px}
+.gear-cat-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.gear-w{font-size:15px;font-weight:500;color:var(--stone);margin-left:auto;white-space:nowrap}
+.gear-w.loading{font-size:12px;color:var(--stone3);font-style:italic;font-weight:400}
+.gear-del{width:32px;height:32px;border-radius:8px;border:1px solid rgba(26,24,20,0.1);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--stone3);transition:all .15s;flex-shrink:0}
+.gear-del:hover{background:var(--red2);border-color:var(--red);color:var(--red)}
+.gear-del svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.empty-state{text-align:center;padding:60px 20px;color:var(--stone3)}
+.empty-state svg{width:40px;height:40px;stroke:var(--stone3);fill:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;margin:0 auto 12px;display:block;opacity:.4}
+.empty-state p{font-size:14px}
+
+.dot-pulse{display:inline-flex;gap:3px;align-items:center}
+.dot-pulse span{width:4px;height:4px;border-radius:50%;background:currentColor;animation:dp 1.2s infinite}
+.dot-pulse span:nth-child(2){animation-delay:.2s}
+.dot-pulse span:nth-child(3){animation-delay:.4s}
+@keyframes dp{0%,80%,100%{opacity:.25}40%{opacity:1}}
+
+.trips-grid{display:flex;flex-direction:column;gap:12px}
+.trip-card{background:var(--cream);border-radius:14px;border:1px solid rgba(26,24,20,0.06);padding:20px 24px}
+.trip-card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.trip-name-el{font-family:var(--serif);font-size:20px;font-weight:400;color:var(--stone);letter-spacing:-0.01em}
+.trip-date-el{font-size:12px;color:var(--stone3);margin-top:2px}
+.trip-stats{display:flex;gap:24px;padding:12px 0;border-top:1px solid var(--mist2);border-bottom:1px solid var(--mist2);margin-bottom:12px}
+.trip-stat{font-size:12px;color:var(--stone3)}
+.trip-stat strong{font-size:15px;font-weight:500;color:var(--stone);display:block}
+.trip-actions{display:flex;gap:8px}
+
+.gear-checklist{display:flex;flex-direction:column;gap:0;max-height:280px;overflow-y:auto;border:1px solid rgba(26,24,20,0.08);border-radius:10px}
+.check-row{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid var(--mist2);transition:background .12s;cursor:pointer}
+.check-row:last-child{border-bottom:none}
+.check-row:hover{background:var(--mist)}
+.check-row input[type=checkbox]{width:15px;height:15px;accent-color:var(--pine);cursor:pointer;flex-shrink:0}
+.check-row label{font-size:13px;color:var(--stone);flex:1;cursor:pointer}
+.check-row span{font-size:12px;color:var(--stone3)}
+
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{position:static;min-height:auto;flex-direction:row;flex-wrap:wrap;gap:16px;align-items:center;padding:20px}
+  .weight-display{border-bottom:none;padding:0;text-align:left}
+  .weight-number{font-size:36px}
+  .cat-totals{display:none}
+  .sidebar-bottom{border-top:none;padding-top:0;margin-top:0;display:flex;gap:8px}
+  .sidebar-nav-item{padding:6px 14px;background:rgba(240,237,230,0.08);border-radius:100px;gap:6px;font-size:13px}
+  .main{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">Summit<span>Pack</span></a>
+  <div class="nav-right">
+    <a class="back-link" href="index.html">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 8H3M7 4l-4 4 4 4"/></svg>
+      Home
+    </a>
+    <div class="unit-pill">
+      <button class="active" id="btn-kg" onclick="setUnit('kg')">kg</button>
+      <button id="btn-lb" onclick="setUnit('lb')">lb</button>
+    </div>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="weight-display">
+      <div class="weight-number" id="total-num">0</div>
+      <div class="weight-unit" id="total-unit-label">kilograms</div>
+      <div class="weight-bar-wrap"><div class="weight-bar-fill" id="weight-bar" style="width:0%"></div></div>
+    </div>
+
+    <div class="cat-totals" id="cat-totals"></div>
+
+    <div class="sidebar-bottom">
+      <button class="sidebar-nav-item active" id="nav-gear" onclick="switchPanel('gear')">
+        <svg viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        My gear
+      </button>
+      <button class="sidebar-nav-item" id="nav-trips" onclick="switchPanel('trips')">
+        <svg viewBox="0 0 24 24"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+        Trips
+      </button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- GEAR PANEL -->
+    <div class="panel active" id="panel-gear">
+      <div class="section-head">
+        <div>
+          <div class="section-title">My gear</div>
+          <div class="section-sub" id="gear-count-sub">0 items in your kit</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="cat-filter" id="cat-filter"></div>
+      </div>
+
+      <div class="add-form">
+        <div class="card-head">
+          <span class="card-title">Add an item</span>
+          <button class="btn btn-outline btn-sm" onclick="toggleForm()">
+            <svg viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M19 9l-7 7-7-7"/></svg>
+            <span id="form-toggle-label">Hide</span>
+          </button>
+        </div>
+        <div id="form-body">
+          <div class="form-grid">
+            <div class="field full">
+              <label>Item name</label>
+              <input type="text" id="item-name" placeholder="e.g. MSR Hubba Hubba 2" oninput="onNameInput()">
+              <div class="ai-hint" id="ai-status"></div>
+            </div>
+            <div class="field">
+              <label>Category</label>
+              <select id="item-cat">
+                <option value="shelter">Shelter</option>
+                <option value="sleep">Sleep</option>
+                <option value="clothing">Clothing</option>
+                <option value="food">Food</option>
+                <option value="navigation">Navigation</option>
+                <option value="safety">Safety</option>
+                <option value="tools">Tools</option>
+                <option value="hygiene">Hygiene</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Weight (g)</label>
+              <input type="number" id="item-weight" placeholder="Auto-searched if blank" min="0">
+            </div>
+            <div class="field">
+              <label>Quantity</label>
+              <input type="number" id="item-qty" value="1" min="1">
+            </div>
+          </div>
+          <div class="upload-row">
+            <div class="upload-zone" id="upload-zone" onclick="triggerUpload()">
+              <svg viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <p>Upload photo — AI will identify the item</p>
+            </div>
+            <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleImage(event)">
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-pine" onclick="addItem()">
+              <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+              Add to kit
+            </button>
+            <button class="btn btn-outline" onclick="clearForm()">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="gear-list-wrap"></div>
+    </div>
+
+    <!-- TRIPS PANEL -->
+    <div class="panel" id="panel-trips">
+      <div class="section-head">
+        <div>
+          <div class="section-title">Trips</div>
+          <div class="section-sub">Plan a trip, select your gear, download a packing list</div>
+        </div>
+        <button class="btn btn-pine" onclick="openNewTrip()">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          New trip
+        </button>
+      </div>
+
+      <div class="add-form" id="new-trip-form" style="display:none">
+        <div class="card-head">
+          <span class="card-title">Plan a new trip</span>
+        </div>
+        <div class="form-grid" style="padding:20px 24px;border-bottom:1px solid var(--mist2)">
+          <div class="field">
+            <label>Trip name</label>
+            <input type="text" id="trip-name" placeholder="e.g. Fuji summer ascent">
+          </div>
+          <div class="field">
+            <label>Date</label>
+            <input type="date" id="trip-date">
+          </div>
+          <div class="field full">
+            <label>Select gear to bring</label>
+            <div class="gear-checklist" id="gear-checklist"></div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-pine" onclick="saveTrip()">
+            <svg viewBox="0 0 24 24"><path d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+            Save trip
+          </button>
+          <button class="btn btn-outline" onclick="closeNewTrip()">Cancel</button>
+        </div>
+      </div>
+
+      <div class="trips-grid" id="trips-list"></div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const ANTHROPIC_API_KEY = 'YOUR_API_KEY_HERE';
+
+const CATS = {
+  shelter:{label:'Shelter',color:'#2d6a8f'},
+  sleep:{label:'Sleep',color:'#7F77DD'},
+  clothing:{label:'Clothing',color:'#2d7a50'},
+  food:{label:'Food',color:'#c4872a'},
+  navigation:{label:'Navigation',color:'#8B4513'},
+  safety:{label:'Safety',color:'#c0392b'},
+  tools:{label:'Tools',color:'#5F5E5A'},
+  hygiene:{label:'Hygiene',color:'#D4537E'},
+  other:{label:'Other',color:'#888780'}
+};
+
+let gear = JSON.parse(localStorage.getItem('sp_gear')||'[]');
+let trips = JSON.parse(localStorage.getItem('sp_trips')||'[]');
+let unit = 'kg';
+let activeFilter = 'all';
+let formOpen = true;
+let aiTimer = null;
+let pendingImg = null;
+
+function save(){try{localStorage.setItem('sp_gear',JSON.stringify(gear));localStorage.setItem('sp_trips',JSON.stringify(trips));}catch(e){}}
+
+function fmtW(g){
+  if(g===null||g===undefined)return'—';
+  if(unit==='kg')return(g/1000).toFixed(2)+' kg';
+  return(g*0.00220462).toFixed(1)+' lb';
+}
+
+function setUnit(u){
+  unit=u;
+  document.getElementById('btn-kg').classList.toggle('active',u==='kg');
+  document.getElementById('btn-lb').classList.toggle('active',u==='lb');
+  document.getElementById('total-unit-label').textContent=u==='kg'?'kilograms':'pounds';
+  renderGear();renderTrips();updateTotals();
+}
+
+function switchPanel(p){
+  document.querySelectorAll('.panel').forEach(el=>el.classList.remove('active'));
+  document.getElementById('panel-'+p).classList.add('active');
+  document.querySelectorAll('.sidebar-nav-item').forEach(el=>el.classList.remove('active'));
+  document.getElementById('nav-'+p).classList.add('active');
+  if(p==='trips')renderTrips();
+}
+
+function buildCatFilter(){
+  const el=document.getElementById('cat-filter');
+  el.innerHTML='';
+  const all=document.createElement('button');
+  all.className='cat-chip'+(activeFilter==='all'?' active':'');
+  all.innerHTML='<svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>All';
+  all.onclick=()=>{activeFilter='all';buildCatFilter();renderGear();};
+  el.appendChild(all);
+  Object.entries(CATS).forEach(([k,v])=>{
+    const btn=document.createElement('button');
+    btn.className='cat-chip'+(activeFilter===k?' active':'');
+    btn.innerHTML=`<span style="width:8px;height:8px;border-radius:50%;background:${v.color};display:inline-block"></span>${v.label}`;
+    btn.onclick=()=>{activeFilter=k;buildCatFilter();renderGear();};
+    el.appendChild(btn);
+  });
+}
+
+function renderGear(){
+  const wrap=document.getElementById('gear-list-wrap');
+  const filtered=activeFilter==='all'?gear:gear.filter(g=>g.cat===activeFilter);
+  document.getElementById('gear-count-sub').textContent=`${gear.length} item${gear.length!==1?'s':''} in your kit`;
+  if(!filtered.length){
+    wrap.innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg><p>No gear yet — add your first item above</p></div>';
+    return;
+  }
+  wrap.innerHTML='';
+  const list=document.createElement('div');
+  list.className='gear-list';
+  filtered.forEach(item=>{
+    const realIdx=gear.indexOf(item);
+    const el=document.createElement('div');
+    el.className='gear-item';
+    const catColor=CATS[item.cat]?.color||'#888';
+    const thumbHTML=item.img
+      ?`<div class="gear-thumb"><img src="${item.img}" alt="${item.name}"></div>`
+      :`<div class="gear-thumb"><svg viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg></div>`;
+    const wHTML=item.weightFetching
+      ?`<div class="gear-w loading"><span class="dot-pulse"><span></span><span></span><span></span></span></div>`
+      :`<div class="gear-w">${fmtW(item.weight?item.weight*(item.qty||1):null)}</div>`;
+    el.innerHTML=`${thumbHTML}<div class="gear-info"><div class="gear-name">${item.name}${item.qty>1?` <span style="font-size:12px;color:var(--stone3);font-weight:400">×${item.qty}</span>`:''}</div><div class="gear-meta"><span class="gear-cat-dot" style="background:${catColor}"></span>${CATS[item.cat]?.label||item.cat}${item.weightFetching?' · searching online…':''}</div></div>${wHTML}<button class="gear-del" onclick="removeItem(${realIdx})"><svg viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>`;
+    list.appendChild(el);
+  });
+  wrap.appendChild(list);
+  updateTotals();
+}
+
+function updateTotals(){
+  const valid=gear.filter(g=>g.weight&&!g.weightFetching);
+  const total=valid.reduce((s,g)=>s+(g.weight*(g.qty||1)),0);
+  const pct=Math.min(100,total/20000*100);
+  const disp=unit==='kg'?(total/1000).toFixed(2):(total*0.00220462).toFixed(1);
+  document.getElementById('total-num').textContent=disp;
+  const bar=document.getElementById('weight-bar');
+  bar.style.width=pct+'%';
+  bar.className='weight-bar-fill'+(pct>80?' danger':pct>60?' warn':'');
+  const catTotals={};
+  valid.forEach(g=>{catTotals[g.cat]=(catTotals[g.cat]||0)+g.weight*(g.qty||1);});
+  const top=Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  document.getElementById('cat-totals').innerHTML=top.map(([c,w])=>`<div class="cat-total-row"><span class="cat-total-dot" style="background:${CATS[c]?.color||'#888'}"></span><span class="cat-total-name">${CATS[c]?.label||c}</span><span class="cat-total-val">${fmtW(w)}</span></div>`).join('');
+}
+
+function toggleForm(){
+  formOpen=!formOpen;
+  document.getElementById('form-body').style.display=formOpen?'block':'none';
+  document.getElementById('form-toggle-label').textContent=formOpen?'Hide':'Show';
+}
+
+function clearForm(){
+  document.getElementById('item-name').value='';
+  document.getElementById('item-weight').value='';
+  document.getElementById('item-qty').value='1';
+  document.getElementById('ai-status').innerHTML='';
+  document.getElementById('ai-status').className='ai-hint';
+  document.getElementById('upload-zone').className='upload-zone';
+  document.getElementById('upload-zone').innerHTML='<svg viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg><p>Upload photo — AI will identify the item</p>';
+  document.getElementById('file-input').value='';
+  pendingImg=null;
+}
+
+function triggerUpload(){document.getElementById('file-input').click();}
+
+function handleImage(ev){
+  const file=ev.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    pendingImg=e.target.result;
+    const zone=document.getElementById('upload-zone');
+    zone.className='upload-zone has-img';
+    zone.innerHTML=`<img src="${e.target.result}" style="max-height:72px;border-radius:6px;object-fit:contain" alt="gear">`;
+    analyzeImage(e.target.result);
+  };
+  reader.readAsDataURL(file);
+}
+
+async function callClaude(body){
+  const r=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':ANTHROPIC_API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify(body)
+  });
+  return r.json();
+}
+
+function setStatus(msg,cls=''){
+  const el=document.getElementById('ai-status');
+  el.innerHTML=msg;el.className='ai-hint'+(cls?' '+cls:'');
+}
+
+async function analyzeImage(dataUrl){
+  setStatus('<span class="dot-pulse"><span></span><span></span><span></span></span> Identifying item from photo…');
+  try{
+    const base64=dataUrl.split(',')[1],mime=dataUrl.split(';')[0].split(':')[1];
+    const data=await callClaude({model:'claude-sonnet-4-20250514',max_tokens:300,messages:[{role:'user',content:[
+      {type:'image',source:{type:'base64',media_type:mime,data:base64}},
+      {type:'text',text:'Identify this outdoor/camping/hiking gear. Return ONLY JSON: {"name":"product name","category":"shelter|sleep|clothing|food|navigation|safety|tools|hygiene|other","weight_g":integer_or_null}. No markdown.'}
+    ]}]});
+    const txt=data.content?.find(b=>b.type==='text')?.text||'';
+    const p=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    if(p.name)document.getElementById('item-name').value=p.name;
+    if(p.category&&CATS[p.category])document.getElementById('item-cat').value=p.category;
+    if(p.weight_g){document.getElementById('item-weight').value=p.weight_g;setStatus('✓ Identified from photo','found');}
+    else{setStatus('✓ Identified — searching for weight…');searchWeight(p.name);}
+  }catch(e){setStatus('Could not identify — enter details manually.');}
+}
+
+function onNameInput(){
+  clearTimeout(aiTimer);
+  const name=document.getElementById('item-name').value.trim();
+  if(!name||document.getElementById('item-weight').value)return;
+  aiTimer=setTimeout(()=>searchWeight(name),1400);
+}
+
+async function searchWeight(name){
+  if(!name)return;
+  setStatus('<span class="dot-pulse"><span></span><span></span><span></span></span> Searching online for weight…');
+  try{
+    const data=await callClaude({model:'claude-sonnet-4-20250514',max_tokens:200,tools:[{type:'web_search_20250305',name:'web_search'}],
+      messages:[{role:'user',content:`Official weight in grams of "${name}" outdoor gear. Return ONLY JSON: {"weight_g":integer_or_null,"source":"brief source"}. No markdown.`}]});
+    const txt=data.content?.filter(b=>b.type==='text').map(b=>b.text).join('');
+    const p=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    if(p.weight_g){document.getElementById('item-weight').value=p.weight_g;setStatus(`✓ ${p.weight_g}g found via ${p.source||'web'}`, 'found');}
+    else setStatus('Weight not found — enter manually');
+  }catch(e){setStatus('Could not fetch — enter manually');}
+}
+
+function addItem(){
+  const name=document.getElementById('item-name').value.trim();if(!name)return;
+  const cat=document.getElementById('item-cat').value;
+  const weight=parseInt(document.getElementById('item-weight').value)||null;
+  const qty=parseInt(document.getElementById('item-qty').value)||1;
+  const item={id:Date.now(),name,cat,weight,qty,img:pendingImg||null};
+  if(!weight){item.weightFetching=true;gear.push(item);save();renderGear();searchWeightForItem(item);}
+  else{gear.push(item);save();renderGear();}
+  clearForm();
+}
+
+async function searchWeightForItem(item){
+  try{
+    const data=await callClaude({model:'claude-sonnet-4-20250514',max_tokens:150,tools:[{type:'web_search_20250305',name:'web_search'}],
+      messages:[{role:'user',content:`Weight in grams of "${item.name}" outdoor gear. Return ONLY JSON: {"weight_g":integer_or_null}. No markdown.`}]});
+    const txt=data.content?.filter(b=>b.type==='text').map(b=>b.text).join('');
+    const p=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    const idx=gear.findIndex(g=>g.id===item.id);
+    if(idx>-1){gear[idx].weightFetching=false;if(p.weight_g)gear[idx].weight=p.weight_g;save();renderGear();}
+  }catch(e){const idx=gear.findIndex(g=>g.id===item.id);if(idx>-1){gear[idx].weightFetching=false;save();renderGear();}}
+}
+
+function removeItem(idx){gear.splice(idx,1);save();renderGear();}
+
+function openNewTrip(){
+  document.getElementById('new-trip-form').style.display='block';
+  const cl=document.getElementById('gear-checklist');
+  if(!gear.length){cl.innerHTML='<div style="padding:12px;font-size:13px;color:var(--stone3)">No gear yet — add items in the Gear tab first.</div>';return;}
+  cl.innerHTML=gear.map(g=>`<label class="check-row"><input type="checkbox" value="${g.id}"><span style="flex:1">${g.name}${g.qty>1?` ×${g.qty}`:''}</span><span>${g.weight?fmtW(g.weight*(g.qty||1)):'—'}</span></label>`).join('');
+  document.getElementById('trip-date').value=new Date().toISOString().split('T')[0];
+}
+
+function closeNewTrip(){document.getElementById('new-trip-form').style.display='none';}
+
+function saveTrip(){
+  const name=document.getElementById('trip-name').value.trim();if(!name)return;
+  const date=document.getElementById('trip-date').value;
+  const checked=[...document.querySelectorAll('#gear-checklist input:checked')].map(el=>parseInt(el.value));
+  const items=gear.filter(g=>checked.includes(g.id));
+  const total=items.reduce((s,g)=>s+(g.weight||0)*(g.qty||1),0);
+  trips.unshift({id:Date.now(),name,date,items:items.map(g=>({...g})),total});
+  save();closeNewTrip();renderTrips();
+  document.getElementById('trip-name').value='';
+}
+
+function renderTrips(){
+  const list=document.getElementById('trips-list');
+  if(!trips.length){list.innerHTML='<div class="empty-state"><svg viewBox="0 0 24 24"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg><p>No trips yet — plan your first ascent</p></div>';return;}
+  list.innerHTML='';
+  trips.forEach((trip,i)=>{
+    const el=document.createElement('div');el.className='trip-card';
+    const d=trip.date?new Date(trip.date).toLocaleDateString('en',{year:'numeric',month:'long',day:'numeric'}):'';
+    el.innerHTML=`<div class="trip-card-head"><div><div class="trip-name-el">${trip.name}</div>${d?`<div class="trip-date-el">${d}</div>`:''}</div></div>
+    <div class="trip-stats"><div class="trip-stat"><strong>${fmtW(trip.total)}</strong>Total weight</div><div class="trip-stat"><strong>${trip.items.length}</strong>Items</div><div class="trip-stat"><strong>${[...new Set(trip.items.map(g=>g.cat))].length}</strong>Categories</div></div>
+    <div class="trip-actions"><button class="btn btn-outline btn-sm" onclick="downloadTrip(${i})"><svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>Export CSV</button><button class="btn btn-outline btn-sm" onclick="deleteTrip(${i})" style="color:var(--red);border-color:rgba(192,57,43,0.25)"><svg viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>Delete</button></div>`;
+    list.appendChild(el);
+  });
+}
+
+function downloadTrip(i){
+  const trip=trips[i];
+  const rows=['Item,Category,Weight (g),Qty,Total Weight (g)'];
+  trip.items.forEach(g=>rows.push(`"${g.name}","${CATS[g.cat]?.label||g.cat}",${g.weight||0},${g.qty||1},${(g.weight||0)*(g.qty||1)}`));
+  rows.push(`"TOTAL",,,,${trip.total}`);
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.join('\n'));
+  a.download=`${trip.name.replace(/\s+/g,'_')}_gear.csv`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+
+function deleteTrip(i){trips.splice(i,1);save();renderTrips();}
+
+buildCatFilter();
+renderGear();
+renderTrips();
+</script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Summit Pack — Know Your Load</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --stone:#1a1814;
+  --stone2:#2d2a25;
+  --stone3:#45423c;
+  --mist:#f5f2ed;
+  --mist2:#ede9e2;
+  --cream:#faf8f4;
+  --pine:#2d4a35;
+  --pine2:#3d6349;
+  --amber:#c4872a;
+  --amber2:#e8a03a;
+  --snow:#ffffff;
+  --text-on-dark:#f0ede6;
+  --serif:'Fraunces',Georgia,serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--cream);color:var(--stone);min-height:100vh}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:20px 40px;display:flex;align-items:center;justify-content:space-between;background:rgba(250,248,244,0.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(26,24,20,0.08)}
+.nav-logo{font-family:var(--serif);font-size:20px;font-weight:700;color:var(--stone);text-decoration:none;letter-spacing:-0.02em}
+.nav-logo span{color:var(--pine2)}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{font-size:14px;color:var(--stone3);text-decoration:none;transition:color .15s}
+.nav-links a:hover{color:var(--stone)}
+.nav-cta{background:var(--stone);color:var(--text-on-dark);padding:10px 22px;border-radius:100px;font-size:14px;font-weight:500;text-decoration:none;transition:background .15s}
+.nav-cta:hover{background:var(--stone2)}
+
+.hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:0 40px;gap:60px;padding-top:80px}
+.hero-text{max-width:520px}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--pine2);margin-bottom:24px}
+.hero-eyebrow::before{content:'';width:24px;height:1px;background:var(--pine2)}
+h1{font-family:var(--serif);font-size:clamp(42px,5vw,68px);font-weight:300;line-height:1.05;letter-spacing:-0.03em;color:var(--stone);margin-bottom:24px}
+h1 em{font-style:italic;color:var(--pine2)}
+.hero-sub{font-size:17px;line-height:1.7;color:var(--stone3);margin-bottom:40px;font-weight:300}
+.hero-actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.btn-primary{background:var(--stone);color:var(--text-on-dark);padding:14px 28px;border-radius:100px;font-size:15px;font-weight:500;text-decoration:none;transition:all .15s;font-family:var(--sans)}
+.btn-primary:hover{background:var(--pine);transform:translateY(-1px)}
+.btn-ghost{color:var(--stone);font-size:14px;text-decoration:none;display:flex;align-items:center;gap:6px;font-weight:400}
+.btn-ghost:hover{color:var(--pine2)}
+.btn-ghost svg{transition:transform .15s}
+.btn-ghost:hover svg{transform:translateX(3px)}
+
+.hero-visual{position:relative;height:600px;display:flex;align-items:center;justify-content:center}
+.mountain-svg{width:100%;max-width:520px}
+
+.stats-bar{background:var(--stone);padding:32px 40px;display:flex;align-items:center;justify-content:space-around;gap:40px;flex-wrap:wrap}
+.stat{text-align:center}
+.stat-num{font-family:var(--serif);font-size:36px;font-weight:300;color:var(--text-on-dark);letter-spacing:-0.02em}
+.stat-num span{color:var(--amber2)}
+.stat-label{font-size:12px;color:rgba(240,237,230,0.5);text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
+
+.features{padding:100px 40px;max-width:1100px;margin:0 auto}
+.section-label{font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--pine2);margin-bottom:16px}
+.section-title{font-family:var(--serif);font-size:clamp(32px,4vw,48px);font-weight:300;line-height:1.1;letter-spacing:-0.02em;color:var(--stone);margin-bottom:60px;max-width:600px}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--mist2)}
+.feature-card{background:var(--cream);padding:40px 36px}
+.feature-icon{width:44px;height:44px;background:var(--pine);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:24px}
+.feature-icon svg{width:22px;height:22px;stroke:var(--text-on-dark);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.feature-title{font-family:var(--serif);font-size:22px;font-weight:400;color:var(--stone);margin-bottom:12px;letter-spacing:-0.01em}
+.feature-desc{font-size:15px;line-height:1.7;color:var(--stone3);font-weight:300}
+
+.how{padding:100px 40px;background:var(--stone);display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+.how-text .section-label{color:var(--amber2)}
+.how-text .section-title{color:var(--text-on-dark)}
+.steps{display:flex;flex-direction:column;gap:0}
+.step{display:flex;gap:24px;padding:28px 0;border-bottom:1px solid rgba(240,237,230,0.1)}
+.step:last-child{border-bottom:none}
+.step-num{font-family:var(--serif);font-size:13px;font-weight:300;color:var(--amber2);width:28px;flex-shrink:0;padding-top:3px}
+.step-content{}
+.step-title{font-size:16px;font-weight:500;color:var(--text-on-dark);margin-bottom:6px}
+.step-desc{font-size:14px;line-height:1.7;color:rgba(240,237,230,0.55);font-weight:300}
+
+.cta-section{padding:100px 40px;text-align:center;background:var(--mist2)}
+.cta-title{font-family:var(--serif);font-size:clamp(36px,5vw,56px);font-weight:300;letter-spacing:-0.03em;color:var(--stone);margin-bottom:16px}
+.cta-title em{font-style:italic;color:var(--pine2)}
+.cta-sub{font-size:17px;color:var(--stone3);font-weight:300;margin-bottom:40px}
+.cta-actions{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap}
+
+footer{background:var(--stone);padding:40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.footer-logo{font-family:var(--serif);font-size:18px;font-weight:700;color:var(--text-on-dark)}
+.footer-logo span{color:var(--amber2)}
+footer p{font-size:13px;color:rgba(240,237,230,0.4)}
+
+@media(max-width:768px){
+  nav{padding:16px 20px}
+  .nav-links{display:none}
+  .hero{grid-template-columns:1fr;padding:100px 20px 40px;gap:40px;min-height:auto}
+  .hero-visual{height:280px}
+  .stats-bar{padding:24px 20px;gap:24px}
+  .features{padding:60px 20px}
+  .features-grid{grid-template-columns:1fr}
+  .how{grid-template-columns:1fr;padding:60px 20px;gap:40px}
+  .cta-section{padding:60px 20px}
+  footer{padding:24px 20px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">Summit<span>Pack</span></a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how">How it works</a>
+    <a class="nav-cta" href="app.html">Open app</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-text">
+    <div class="hero-eyebrow">Gear weight tracker</div>
+    <h1>Know your load<br>before you <em>hit the trail</em></h1>
+    <p class="hero-sub">Add your gear, let AI look up the weights automatically, build trip packing lists, and download your load breakdown — all in one place.</p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="app.html">Start tracking free</a>
+      <a class="btn-ghost" href="#features">
+        See features
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <svg class="mountain-svg" viewBox="0 0 520 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="520" height="480" fill="#EDE9E2" rx="24"/>
+      <polygon points="260,60 420,340 100,340" fill="#2d4a35" opacity="0.15"/>
+      <polygon points="260,80 400,320 120,320" fill="#2d4a35" opacity="0.2"/>
+      <polygon points="260,95 380,310 140,310" fill="#2d4a35" opacity="0.3"/>
+      <polygon points="260,110 360,300 160,300" fill="#2d4a35"/>
+      <polygon points="260,110 295,160 225,160" fill="#f5f2ed"/>
+      <rect x="100" y="310" width="320" height="120" fill="#c4872a" opacity="0.15" rx="0"/>
+      <rect x="100" y="330" width="320" height="100" fill="#c4872a" opacity="0.1"/>
+      <rect x="100" y="350" width="320" height="80" fill="#faf8f4"/>
+      <rect x="130" y="370" width="260" height="48" rx="8" fill="white" stroke="#e0dbd2" stroke-width="1"/>
+      <rect x="142" y="382" width="80" height="10" rx="3" fill="#2d4a35" opacity="0.5"/>
+      <rect x="142" y="397" width="50" height="8" rx="3" fill="#2d4a35" opacity="0.2"/>
+      <rect x="286" y="378" width="88" height="28" rx="14" fill="#2d4a35"/>
+      <rect x="296" y="388" width="68" height="8" rx="3" fill="white" opacity="0.8"/>
+      <rect x="130" y="428" width="80" height="8" rx="3" fill="#c4872a" opacity="0.6"/>
+      <rect x="220" y="428" width="50" height="8" rx="3" fill="#2d4a35" opacity="0.2"/>
+      <rect x="280" y="428" width="40" height="8" rx="3" fill="#2d4a35" opacity="0.2"/>
+      <circle cx="80" cy="120" r="28" fill="#2d4a35" opacity="0.08"/>
+      <circle cx="440" cy="200" r="18" fill="#c4872a" opacity="0.12"/>
+      <circle cx="60" cy="280" r="12" fill="#c4872a" opacity="0.15"/>
+    </svg>
+  </div>
+</section>
+
+<div class="stats-bar">
+  <div class="stat"><div class="stat-num"><span>9</span></div><div class="stat-label">gear categories</div></div>
+  <div class="stat"><div class="stat-num">AI <span>powered</span></div><div class="stat-label">automatic weight lookup</div></div>
+  <div class="stat"><div class="stat-num"><span>CSV</span> export</div><div class="stat-label">every trip, downloaded</div></div>
+  <div class="stat"><div class="stat-num"><span>0</span></div><div class="stat-label">cost, forever free</div></div>
+</div>
+
+<section class="features" id="features">
+  <div class="section-label">What it does</div>
+  <div class="section-title">Everything you need before the mountain</div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      </div>
+      <div class="feature-title">AI weight search</div>
+      <p class="feature-desc">Type a product name like "MSR Hubba Hubba 2" and the AI searches manufacturer specs online to fill in the weight automatically.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </div>
+      <div class="feature-title">Photo identification</div>
+      <p class="feature-desc">Snap or upload a photo of any piece of gear and the AI identifies it, categorises it, and looks up its weight — no typing needed.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+      </div>
+      <div class="feature-title">9 categories</div>
+      <p class="feature-desc">Shelter, sleep, clothing, food, navigation, safety, tools, hygiene, and other — your pack weight broken down by what matters most.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+      </div>
+      <div class="feature-title">Trip planning</div>
+      <p class="feature-desc">Create named trips with a date, pick which gear you're bringing from your full kit, and see the trip total weight at a glance.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+      </div>
+      <div class="feature-title">CSV export</div>
+      <p class="feature-desc">Download any trip as a spreadsheet — item name, category, weight per unit, quantity, and total. Share it, print it, archive it.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
+      </div>
+      <div class="feature-title">kg or lb</div>
+      <p class="feature-desc">Switch between kilograms and pounds anytime — your gear weights instantly recalculate across every view and export.</p>
+    </div>
+  </div>
+</section>
+
+<section class="how" id="how">
+  <div class="how-text">
+    <div class="section-label">How it works</div>
+    <div class="section-title">Three steps to a lighter pack</div>
+    <p style="font-size:15px;line-height:1.8;color:rgba(240,237,230,0.55);font-weight:300;margin-top:0">No account needed. No installation. Open the app in your browser and start building your gear list in minutes.</p>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-content">
+        <div class="step-title">Add your gear</div>
+        <div class="step-desc">Type a product name or upload a photo. The AI searches online for the official weight automatically — or you can enter it yourself.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-content">
+        <div class="step-title">Build your kit</div>
+        <div class="step-desc">Organise items across 9 categories. See your total pack weight update in real time as you add or remove items.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-content">
+        <div class="step-title">Plan your trips</div>
+        <div class="step-desc">Create a named trip, select which gear you're bringing, and download a full CSV breakdown — ready for every ascent.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="section-label" style="text-align:center">Ready to pack smarter?</div>
+  <div class="cta-title">Your pack. <em>Calculated.</em></div>
+  <p class="cta-sub">Free to use, works in any browser, no sign-up required.</p>
+  <div class="cta-actions">
+    <a class="btn-primary" href="app.html">Open Summit Pack</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">Summit<span>Pack</span></div>
+  <p>Built for mountain people. Free forever.</p>
+</footer>
+
+</body>
+</html>
